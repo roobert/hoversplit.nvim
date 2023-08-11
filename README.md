@@ -4,7 +4,7 @@
 
 ## Overview
 
-A Neovim plugin designed to enhance the Language Server Protocol (LSP) experience by providing hover information in a split window. With this plugin, you can quickly access additional context, documentation, or information related to code symbols directly within your editor without disrupting your workflow.
+A Neovim plugin designed to enhance the Language Server Protocol (LSP) experience by providing hover information in a split window. With this plugin, it is possible to quickly access additional context, documentation, or information related to code symbols directly within Neovim without disrupting your workflow.
 
 ## Features
 
@@ -16,8 +16,8 @@ A Neovim plugin designed to enhance the Language Server Protocol (LSP) experienc
 
 ## Installation
 
-You can install hoversplit.nvim using your preferred plugin manager. Here's an example
-for LazyVim:
+Install hoversplit.nvim using any preferred plugin manager.
+LazyVim Example:
 
 ```lua
 {
@@ -32,7 +32,7 @@ for LazyVim:
 
 ### Key Bindings
 
-You can configure key bindings for different functionalities. Here's an example configuration:
+Configure key bindings for different functionalities. Example configuration:
 
 ```lua
 {
