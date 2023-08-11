@@ -4,7 +4,7 @@
 
 ## Overview
 
-hoversplit.nvim is a Neovim plugin designed to enhance the Language Server Protocol (LSP) experience by providing hover information in a split window. With this plugin, you can quickly access additional context, documentation, or information related to code symbols directly within your editor without disrupting your workflow.
+A Neovim plugin designed to enhance the Language Server Protocol (LSP) experience by providing hover information in a split window. With this plugin, you can quickly access additional context, documentation, or information related to code symbols directly within your editor without disrupting your workflow.
 
 ## Features
 
