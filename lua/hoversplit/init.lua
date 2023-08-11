@@ -11,6 +11,18 @@ local function update_hover_content()
 		return
 	end
 
+	-- Check the current buffer and cursor position
+	local bufnr = vim.api.nvim_get_current_buf()
+	local cursor_pos = vim.api.nvim_win_get_cursor(0)
+	local line_count = vim.api.nvim_buf_line_count(bufnr)
+	local current_line = vim.api.nvim_buf_get_lines(bufnr, cursor_pos[1] - 1, cursor_pos[1], false)[1] or ""
+
+	-- Validate the cursor position
+	if cursor_pos[1] < 1 or cursor_pos[1] > line_count or cursor_pos[2] < 0 or cursor_pos[2] > #current_line then
+		print("Invalid cursor position detected. Skipping hover content update.")
+		return
+	end
+
 	vim.lsp.buf_request(0, "textDocument/hover", vim.lsp.util.make_position_params(), function(err, result)
 		if err or not result or not result.contents then
 			return
