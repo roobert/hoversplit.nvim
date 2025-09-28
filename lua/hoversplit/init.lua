@@ -1,6 +1,6 @@
-local config = require("hoversplit.config")
-
 local M = {}
+
+local config = require("hoversplit.config")
 
 M.hover_bufnr = nil ---@type integer|nil
 M.hover_winid = nil ---@type integer|nil
@@ -48,6 +48,18 @@ function M.create_hover_split(vertical, remain_focused)
 
 	M.orig_winid = vim.api.nvim_get_current_win()
 	M.hover_bufnr = vim.api.nvim_create_buf(false, true)
+
+	vim.api.nvim_create_autocmd("BufEnter", {
+		group = vim.api.nvim_create_augroup("HoverSplitBuffer", { clear = true }),
+		buffer = M.hover_bufnr,
+		callback = function(ev)
+			vim.keymap.set('n', 'q', M.close_hover_split, {
+				noremap = true,
+				silent = true,
+				buffer = ev.buf,
+			})
+		end,
+	})
 
 	if not vertical then
 		M.hover_winid = vim.api.nvim_open_win(M.hover_bufnr, remain_focused, {
@@ -147,4 +159,4 @@ function M.setup(options)
 end
 
 return M
--- vim:ft=lua:ts=4:sts=4:noet:ai:si:sta:
+-- vim:ts=4:sts=4:noet:ai:si:sta:

@@ -10,4 +10,4 @@ M.options = {
 }
 
 return M
--- vim:ft=lua:ts=4:sts=4:noet:ai:si:sta:
+-- vim:ts=4:sts=4:noet:ai:si:sta:
