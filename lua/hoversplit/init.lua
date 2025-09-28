@@ -47,11 +47,11 @@ function M.create_hover_split(vertical, remain_focused)
 	M.orig_winid = vim.api.nvim_get_current_win()
 	M.hover_bufnr = vim.api.nvim_create_buf(false, true)
 	-- vim.cmd(command)
-    M.hover_winid = vim.api.nvim_open_win(M.hover_bufnr, remain_focused, {
-        focusable = true,
-        vertical = vertical,
-        style = "minimal",
-    })
+	M.hover_winid = vim.api.nvim_open_win(M.hover_bufnr, remain_focused, {
+		focusable = true,
+		vertical = vertical,
+		style = "minimal",
+	})
 	vim.api.nvim_win_set_buf(M.hover_winid, M.hover_bufnr)
 	vim.api.nvim_buf_set_name(M.hover_bufnr, "hoversplit")
 	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = M.hover_bufnr })
@@ -136,3 +136,4 @@ function M.setup(options)
 end
 
 return M
+-- vim:ft=lua:ts=4:sts=4:noet:ai:si:sta:

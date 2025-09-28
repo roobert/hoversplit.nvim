@@ -4,3 +4,4 @@ return {
 		require("hoversplit").setup()
 	end,
 }
+-- vim:ft=lua:ts=4:sts=4:noet:ai:si:sta:
