@@ -2,8 +2,10 @@ local M = {}
 
 M.options = {
 	key_bindings = {
-		split = "<leader>h",
-		vsplit = "<leader>H",
+		split = "<leader>hS",
+		vsplit = "<leader>hV",
+		split_remain_focused = "<leader>hs",
+		vsplit_remain_focused = "<leader>hv",
 	},
 }
 

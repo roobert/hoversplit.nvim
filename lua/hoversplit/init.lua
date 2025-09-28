@@ -100,10 +100,7 @@ end
 
 function M.setup(options)
 	options = options or {}
-
-	for k, v in pairs(options) do
-		config.options[k] = v
-	end
+	config.options = vim.tbl_deep_extend('force', config.options, options)
 
 	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
 		group = vim.api.nvim_create_augroup("HoverSplit", { clear = true }),
@@ -120,28 +117,28 @@ function M.setup(options)
 
 	vim.keymap.set(
 		"n",
-		config.options.key_bindings["split_remain_focused"],
+		config.options.key_bindings.split_remain_focused,
 		M.split_remain_focused,
 		{ noremap = true, silent = true, desc = 'HoverSplit split (Remain Focused)' }
 	)
 
 	vim.keymap.set(
 		"n",
-		config.options.key_bindings["vsplit_remain_focused"],
+		config.options.key_bindings.vsplit_remain_focused,
 		M.vsplit_remain_focused,
 		{ noremap = true, silent = true, desc = 'HoverSplit vsplit (Remain Focused)' }
 	)
 
 	vim.keymap.set(
 		"n",
-		config.options.key_bindings["split"],
+		config.options.key_bindings.split,
 		M.split,
 		{ noremap = true, silent = true, desc = 'HoverSplit split' }
 	)
 
 	vim.keymap.set(
 		"n",
-		config.options.key_bindings["vsplit"],
+		config.options.key_bindings.vsplit,
 		M.vsplit,
 		{ noremap = true, silent = true, desc = 'HoverSplit vsplit' }
 	)
