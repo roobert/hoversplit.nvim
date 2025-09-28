@@ -24,16 +24,18 @@ function M.update_hover_content()
 		return
 	end
 
-	vim.lsp.buf_request(bufnr, "textDocument/hover", vim.lsp.util.make_position_params(win, "utf-16"), function(err, result)
-		if err or not (result and result.contents) then
-			return
-		end
+	if bufnr ~= M.hover_bufnr then
+		vim.lsp.buf_request(bufnr, "textDocument/hover", vim.lsp.util.make_position_params(win, "utf-16"), function(err, result)
+			if err or not (result and result.contents) then
+				return
+			end
 
-		local lines = vim.lsp.util.convert_input_to_markdown_lines(result.contents)
-		vim.api.nvim_set_option_value("modifiable", true, { buf = M.hover_bufnr })
-		vim.api.nvim_buf_set_lines(M.hover_bufnr, 0, -1, false, lines)
-		vim.api.nvim_set_option_value("modifiable", false, { buf = M.hover_bufnr })
-	end)
+			local lines = vim.lsp.util.convert_input_to_markdown_lines(result.contents)
+			vim.api.nvim_set_option_value("modifiable", true, { buf = M.hover_bufnr })
+			vim.api.nvim_buf_set_lines(M.hover_bufnr, 0, -1, false, lines)
+			vim.api.nvim_set_option_value("modifiable", false, { buf = M.hover_bufnr })
+		end)
+	end
 end
 
 ---@param vertical boolean
