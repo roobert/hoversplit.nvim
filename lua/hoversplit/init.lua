@@ -47,9 +47,8 @@ function M.create_hover_split(vertical, remain_focused)
 	M.orig_winid = vim.api.nvim_get_current_win()
 	M.hover_bufnr = vim.api.nvim_create_buf(false, true)
 	-- vim.cmd(command)
-    M.hover_winid = vim.api.nvim_open_win(M.hover_bufnr, not remain_focused, {
+    M.hover_winid = vim.api.nvim_open_win(M.hover_bufnr, remain_focused, {
         focusable = true,
-        split ="below",
         vertical = vertical,
         style = "minimal",
     })
@@ -60,10 +59,6 @@ function M.create_hover_split(vertical, remain_focused)
 	vim.api.nvim_set_option_value("filetype", "markdown", { buf = M.hover_bufnr })
 	vim.api.nvim_set_option_value("wrap", true, { win = M.hover_winid })
 	vim.b[M.hover_bufnr].is_lsp_hover_split = true
-
-	if not remain_focused then -- added the comparison to false
-		vim.api.nvim_set_current_win(M.orig_winid)
-	end
 
 	M.update_hover_content()
 end
