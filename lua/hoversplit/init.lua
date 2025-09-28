@@ -1,6 +1,6 @@
-local M = {}
-
 local config = require("hoversplit.config")
+
+local M = {}
 
 M.hover_bufnr = nil ---@type integer|nil
 M.hover_winid = nil ---@type integer|nil
@@ -70,6 +70,7 @@ function M.create_hover_split(vertical, remain_focused)
 	vim.bo[M.hover_bufnr].buftype = "nowrite"
 	vim.bo[M.hover_bufnr].filetype = "markdown"
 	vim.wo[M.hover_winid].wrap = true
+	vim.wo[M.hover_winid].conceallevel = 3
 	vim.b[M.hover_bufnr].is_lsp_hover_split = true
 
 	M.update_hover_content()
