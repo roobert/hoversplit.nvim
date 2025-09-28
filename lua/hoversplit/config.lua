@@ -1,6 +1,7 @@
 local M = {}
 
 M.options = {
+	key_bindings_disabled = false,
 	key_bindings = {
 		split = "<leader>hS",
 		vsplit = "<leader>hV",
