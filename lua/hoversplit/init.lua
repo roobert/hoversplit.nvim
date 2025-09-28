@@ -98,11 +98,12 @@ function M.setup(options)
 
 	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
 		group = vim.api.nvim_create_augroup("HoverSplit", { clear = true }),
-		callback = function()
-			M.update_hover_content()
+		callback = function(args)
+			if args.buf ~= M.hover_bufnr then
+				M.update_hover_content()
+			end
 		end,
 	})
-	-- vim.cmd([[ autocmd CursorMoved,CursorMovedI * lua require("hoversplit").update_hover_content() ]])
 
 	if config.options.key_bindings_disabled then
 		return
