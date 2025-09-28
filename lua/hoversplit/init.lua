@@ -7,7 +7,7 @@ M.hover_winid = nil ---@type integer|nil
 M.orig_winid = nil ---@type integer|nil
 
 function M.update_hover_content()
-	if not M.hover_winid or not vim.api.nvim_win_is_valid(M.hover_winid) then
+	if not (M.hover_winid and vim.api.nvim_win_is_valid(M.hover_winid)) then
 		return
 	end
 
@@ -25,7 +25,7 @@ function M.update_hover_content()
 	end
 
 	vim.lsp.buf_request(bufnr, "textDocument/hover", vim.lsp.util.make_position_params(win, "utf-16"), function(err, result)
-		if err or not result or not result.contents then
+		if err or not (result and result.contents) then
 			return
 		end
 
