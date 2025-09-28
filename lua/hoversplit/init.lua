@@ -109,28 +109,28 @@ function M.setup(options)
 		"n",
 		config.options.key_bindings["split_remain_focused"],
 		M.split_remain_focused,
-		{ noremap = true, silent = true }
+		{ noremap = true, silent = true, desc = 'HoverSplit split (Remain Focused)' }
 	)
 
 	vim.keymap.set(
 		"n",
 		config.options.key_bindings["vsplit_remain_focused"],
 		M.vsplit_remain_focused,
-		{ noremap = true, silent = true }
+		{ noremap = true, silent = true, desc = 'HoverSplit vsplit (Remain Focused)' }
 	)
 
 	vim.keymap.set(
 		"n",
 		config.options.key_bindings["split"],
 		M.split,
-		{ noremap = true, silent = true }
+		{ noremap = true, silent = true, desc = 'HoverSplit split' }
 	)
 
 	vim.keymap.set(
 		"n",
 		config.options.key_bindings["vsplit"],
 		M.vsplit,
-		{ noremap = true, silent = true }
+		{ noremap = true, silent = true, desc = 'HoverSplit vsplit' }
 	)
 end
 
