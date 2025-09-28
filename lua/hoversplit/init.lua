@@ -31,9 +31,9 @@ function M.update_hover_content()
 			end
 
 			local lines = vim.lsp.util.convert_input_to_markdown_lines(result.contents)
-			vim.api.nvim_set_option_value("modifiable", true, { buf = M.hover_bufnr })
+			vim.bo[M.hover_bufnr].modifiable = true
 			vim.api.nvim_buf_set_lines(M.hover_bufnr, 0, -1, false, lines)
-			vim.api.nvim_set_option_value("modifiable", false, { buf = M.hover_bufnr })
+			vim.bo[M.hover_bufnr].modifiable = false
 		end)
 	end
 end
@@ -65,10 +65,11 @@ function M.create_hover_split(vertical, remain_focused)
 	end
 	vim.api.nvim_win_set_buf(M.hover_winid, M.hover_bufnr)
 	vim.api.nvim_buf_set_name(M.hover_bufnr, "hoversplit")
-	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = M.hover_bufnr })
-	vim.api.nvim_set_option_value("modifiable", false, { buf = M.hover_bufnr })
-	vim.api.nvim_set_option_value("filetype", "markdown", { buf = M.hover_bufnr })
-	vim.api.nvim_set_option_value("wrap", true, { win = M.hover_winid })
+	vim.bo[M.hover_bufnr].bufhidden = "wipe"
+	vim.bo[M.hover_bufnr].modifiable = false
+	vim.bo[M.hover_bufnr].buftype = "nowrite"
+	vim.bo[M.hover_bufnr].filetype = "markdown"
+	vim.wo[M.hover_winid].wrap = true
 	vim.b[M.hover_bufnr].is_lsp_hover_split = true
 
 	M.update_hover_content()
