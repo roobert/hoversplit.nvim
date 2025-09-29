@@ -5,6 +5,32 @@ local config = require("hoversplit.config")
 M.hover_bufnr = nil ---@type integer|nil
 M.hover_winid = nil ---@type integer|nil
 M.orig_winid = nil ---@type integer|nil
+M.orig_bufnr = nil ---@type integer|nil
+
+---@param bufnr? integer
+---@return boolean
+function M.check_hover_support(bufnr)
+	bufnr = bufnr or vim.api.nvim_get_current_buf()
+	if bufnr == M.hover_bufnr then
+		return false
+	end
+
+	-- Check if there are any available clients and that the current buffer
+	-- isn't the hover buffer
+	local clients = vim.lsp.get_clients({ bufnr = bufnr })
+	if vim.tbl_isempty(clients) then
+		return false
+	end
+
+	-- If ANY of the hooked LSP clients supports hovering, return `true`
+	for _, client in ipairs(clients) do
+		if client:supports_method("textDocument/hover", bufnr) then
+			return true
+		end
+	end
+
+	return false
+end
 
 function M.update_hover_content()
 	if not (M.hover_winid and vim.api.nvim_win_is_valid(M.hover_winid)) then
@@ -21,19 +47,6 @@ function M.update_hover_content()
 	-- Validate the cursor position
 	if cursor_pos[1] < 1 or cursor_pos[1] > line_count or cursor_pos[2] < 0 or cursor_pos[2] > current_line:len() then
 		vim.notify("Invalid cursor position detected. Skipping hover content update.", vim.log.levels.WARN)
-		return
-	end
-
-	-- Check if there are any available clients and that the current buffer
-	-- isn't the hover buffer
-	local clients = vim.lsp.get_clients({ bufnr = bufnr })
-	if bufnr == M.hover_bufnr or vim.tbl_isempty(clients) then
-		return
-	end
-
-	-- Grab the first LSP client(?) and check if it supports hovering
-	local client = clients[1]
-	if not client:supports_method("textDocument/hover", bufnr) then
 		return
 	end
 
@@ -62,6 +75,7 @@ function M.create_hover_split(vertical, remain_focused)
 		return
 	end
 
+	M.orig_bufnr = vim.api.nvim_get_current_buf()
 	M.orig_winid = vim.api.nvim_get_current_win()
 	M.hover_bufnr = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_create_autocmd("BufEnter", {
@@ -95,7 +109,9 @@ function M.create_hover_split(vertical, remain_focused)
 	vim.wo[M.hover_winid].conceallevel = conceallevel
 	vim.b[M.hover_bufnr].is_lsp_hover_split = true
 
-	M.update_hover_content()
+	if M.check_hover_support(M.orig_bufnr) then
+		M.update_hover_content()
+	end
 end
 
 function M.split()
@@ -129,7 +145,7 @@ function M.setup(options)
 	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
 		group = vim.api.nvim_create_augroup("HoverSplit", { clear = true }),
 		callback = function(args)
-			if args.buf ~= M.hover_bufnr then
+			if args.buf ~= M.hover_bufnr and M.check_hover_support(args.buf) then
 				M.update_hover_content()
 			end
 		end,
