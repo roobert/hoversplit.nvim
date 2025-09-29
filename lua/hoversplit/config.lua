@@ -1,6 +1,7 @@
 local M = {}
 
 M.options = {
+	conceallevel = 3,
 	key_bindings_disabled = false,
 	key_bindings = {
 		split = "<leader>hS",

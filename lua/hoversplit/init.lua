@@ -75,6 +75,8 @@ function M.create_hover_split(vertical, remain_focused)
 			style = "minimal",
 		})
 	end
+
+	local conceallevel = vim.list_contains({ 0, 1, 2, 3 }, config.conceallevel) and config.conceallevel or 3
 	vim.api.nvim_win_set_buf(M.hover_winid, M.hover_bufnr)
 	vim.api.nvim_buf_set_name(M.hover_bufnr, "hoversplit")
 	vim.bo[M.hover_bufnr].bufhidden = "wipe"
@@ -82,7 +84,7 @@ function M.create_hover_split(vertical, remain_focused)
 	vim.bo[M.hover_bufnr].buftype = "nowrite"
 	vim.bo[M.hover_bufnr].filetype = "markdown"
 	vim.wo[M.hover_winid].wrap = true
-	vim.wo[M.hover_winid].conceallevel = 3
+	vim.wo[M.hover_winid].conceallevel = conceallevel
 	vim.b[M.hover_bufnr].is_lsp_hover_split = true
 
 	M.update_hover_content()
