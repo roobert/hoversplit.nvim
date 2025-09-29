@@ -19,13 +19,29 @@ function M.update_hover_content()
 	local current_line = vim.api.nvim_buf_get_lines(bufnr, cursor_pos[1] - 1, cursor_pos[1], false)[1] or ""
 
 	-- Validate the cursor position
-	if cursor_pos[1] < 1 or cursor_pos[1] > line_count or cursor_pos[2] < 0 or cursor_pos[2] > #current_line then
+	if cursor_pos[1] < 1 or cursor_pos[1] > line_count or cursor_pos[2] < 0 or cursor_pos[2] > current_line:len() then
 		vim.notify("Invalid cursor position detected. Skipping hover content update.", vim.log.levels.WARN)
 		return
 	end
 
-	if bufnr ~= M.hover_bufnr then
-		vim.lsp.buf_request(bufnr, "textDocument/hover", vim.lsp.util.make_position_params(win, "utf-16"), function(err, result)
+	-- Check if there are any available clients and that the current buffer
+	-- isn't the hover buffer
+	local clients = vim.lsp.get_clients({ bufnr = bufnr })
+	if bufnr == M.hover_bufnr or vim.tbl_isempty(clients) then
+		return
+	end
+
+	-- Grab the first LSP client(?) and check if it supports hovering
+	local client = clients[1]
+	if not client:supports_method("textDocument/hover", bufnr) then
+		return
+	end
+
+	vim.lsp.buf_request(
+		bufnr,
+		"textDocument/hover",
+		vim.lsp.util.make_position_params(win, "utf-16"),
+		function(err, result)
 			if err or not (result and result.contents) then
 				return
 			end
@@ -34,8 +50,8 @@ function M.update_hover_content()
 			vim.bo[M.hover_bufnr].modifiable = true
 			vim.api.nvim_buf_set_lines(M.hover_bufnr, 0, -1, false, lines)
 			vim.bo[M.hover_bufnr].modifiable = false
-		end)
-	end
+		end
+	)
 end
 
 ---@param vertical boolean
@@ -48,7 +64,6 @@ function M.create_hover_split(vertical, remain_focused)
 
 	M.orig_winid = vim.api.nvim_get_current_win()
 	M.hover_bufnr = vim.api.nvim_create_buf(false, true)
-
 	vim.api.nvim_create_autocmd("BufEnter", {
 		group = vim.api.nvim_create_augroup("HoverSplitBuffer", { clear = true }),
 		buffer = M.hover_bufnr,
@@ -61,22 +76,14 @@ function M.create_hover_split(vertical, remain_focused)
 		end,
 	})
 
+	---@type vim.api.keyset.win_config
+	local win_opts = { focusable = true, vertical = vertical, style = "minimal" }
 	if not vertical then
-		M.hover_winid = vim.api.nvim_open_win(M.hover_bufnr, remain_focused, {
-			focusable = true,
-			vertical = false,
-			split = "below",
-			style = "minimal",
-		})
-	else
-		M.hover_winid = vim.api.nvim_open_win(M.hover_bufnr, remain_focused, {
-			focusable = true,
-			vertical = true,
-			style = "minimal",
-		})
+		win_opts.split = "below"
 	end
 
 	local conceallevel = vim.list_contains({ 0, 1, 2, 3 }, config.conceallevel) and config.conceallevel or 3
+	M.hover_winid = vim.api.nvim_open_win(M.hover_bufnr, remain_focused, win_opts)
 	vim.api.nvim_win_set_buf(M.hover_winid, M.hover_bufnr)
 	vim.api.nvim_buf_set_name(M.hover_bufnr, "hoversplit")
 	vim.bo[M.hover_bufnr].bufhidden = "wipe"
