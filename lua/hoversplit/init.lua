@@ -93,9 +93,15 @@ function M.create_hover_split(vertical, remain_focused)
 				return
 			end
 
-			if ev.buf == M.orig_bufnr then
-				vim.api.nvim_win_set_cursor(M.orig_winid, M.orig_pos)
+			if ev.buf ~= M.orig_bufnr then
+				return
 			end
+			if not vim.api.nvim_win_is_valid(M.orig_winid) then
+				M.orig_winid = nil
+				return
+			end
+
+			vim.api.nvim_win_set_cursor(M.orig_winid, M.orig_pos)
 		end,
 	})
 
@@ -114,9 +120,9 @@ function M.create_hover_split(vertical, remain_focused)
 	vim.bo[M.hover_bufnr].modifiable = false
 	vim.bo[M.hover_bufnr].buftype = "nowrite"
 	vim.bo[M.hover_bufnr].filetype = "markdown"
+	vim.b[M.hover_bufnr].is_lsp_hover_split = true
 	vim.wo[M.hover_winid].wrap = true
 	vim.wo[M.hover_winid].conceallevel = conceallevel
-	vim.b[M.hover_bufnr].is_lsp_hover_split = true
 
 	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
 		group = augroup,
