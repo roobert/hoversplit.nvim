@@ -67,6 +67,7 @@ function M.create_hover_split(vertical, remain_focused)
 		return
 	end
 
+	M.remain_focused = remain_focused
 	M.orig_bufnr = vim.api.nvim_get_current_buf()
 	M.orig_winid = vim.api.nvim_get_current_win()
 	M.orig_pos = vim.api.nvim_win_get_cursor(M.orig_winid)
@@ -88,12 +89,14 @@ function M.create_hover_split(vertical, remain_focused)
 			if ev.buf ~= M.orig_bufnr then
 				return
 			end
-			if not vim.api.nvim_win_is_valid(M.orig_winid) then
+			if not (M.orig_winid and vim.api.nvim_win_is_valid(M.orig_winid)) then
 				M.orig_winid = nil
 				return
 			end
 
-			vim.api.nvim_win_set_cursor(M.orig_winid, M.orig_pos)
+			if not M.remain_focused then
+				vim.api.nvim_win_set_cursor(M.orig_winid, M.orig_pos)
+			end
 		end,
 	})
 
@@ -105,7 +108,7 @@ function M.create_hover_split(vertical, remain_focused)
 
 	local conceallevel = config.conceallevel or 3
 	conceallevel = vim.list_contains({ 0, 1, 2, 3 }, conceallevel) and conceallevel or 3
-	M.hover_winid = vim.api.nvim_open_win(M.hover_bufnr, remain_focused, win_opts)
+	M.hover_winid = vim.api.nvim_open_win(M.hover_bufnr, M.remain_focused, win_opts)
 	vim.api.nvim_win_set_buf(M.hover_winid, M.hover_bufnr)
 	vim.api.nvim_buf_set_name(M.hover_bufnr, "hoversplit")
 	vim.bo[M.hover_bufnr].bufhidden = "wipe"
