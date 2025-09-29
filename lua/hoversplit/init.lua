@@ -78,8 +78,10 @@ function M.create_hover_split(vertical, remain_focused)
 	M.orig_bufnr = vim.api.nvim_get_current_buf()
 	M.orig_winid = vim.api.nvim_get_current_win()
 	M.hover_bufnr = vim.api.nvim_create_buf(false, true)
+
+	local augroup = vim.api.nvim_create_augroup("HoverSplit", { clear = true })
 	vim.api.nvim_create_autocmd("BufEnter", {
-		group = vim.api.nvim_create_augroup("HoverSplitBuffer", { clear = true }),
+		group = augroup,
 		buffer = M.hover_bufnr,
 		callback = function(ev)
 			vim.keymap.set('n', 'q', M.close_hover_split, {
@@ -109,9 +111,19 @@ function M.create_hover_split(vertical, remain_focused)
 	vim.wo[M.hover_winid].conceallevel = conceallevel
 	vim.b[M.hover_bufnr].is_lsp_hover_split = true
 
-	if M.check_hover_support(M.orig_bufnr) then
-		M.update_hover_content()
-	end
+	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+		group = augroup,
+		buffer = M.orig_bufnr,
+		callback = function(args)
+			if args.buf ~= M.hover_bufnr and M.check_hover_support(args.buf) then
+				M.update_hover_content()
+			end
+		end,
+	})
+
+	-- if M.check_hover_support(M.orig_bufnr) then
+	-- 	M.update_hover_content()
+	-- end
 end
 
 function M.split()
@@ -141,15 +153,6 @@ end
 function M.setup(options)
 	options = options or {}
 	config.options = vim.tbl_deep_extend('force', config.options, options)
-
-	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-		group = vim.api.nvim_create_augroup("HoverSplit", { clear = true }),
-		callback = function(args)
-			if args.buf ~= M.hover_bufnr and M.check_hover_support(args.buf) then
-				M.update_hover_content()
-			end
-		end,
-	})
 
 	if config.options.key_bindings_disabled then
 		return
