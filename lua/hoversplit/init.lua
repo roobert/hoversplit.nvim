@@ -15,21 +15,13 @@ function M.check_hover_support(bufnr)
 		return false
 	end
 
-	-- Check if there are any available clients and that the current buffer
-	-- isn't the hover buffer
-	local clients = vim.lsp.get_clients({ bufnr = bufnr })
+	-- Check if there are any available LSP clients that support hovering
+	local clients = vim.lsp.get_clients({ bufnr = bufnr, method = "textDocument/hover" })
 	if vim.tbl_isempty(clients) then
 		return false
 	end
 
-	-- If ANY of the hooked LSP clients supports hovering, return `true`
-	for _, client in ipairs(clients) do
-		if client:supports_method("textDocument/hover", bufnr) then
-			return true
-		end
-	end
-
-	return false
+	return true
 end
 
 function M.update_hover_content()
