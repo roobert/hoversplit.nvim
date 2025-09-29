@@ -82,7 +82,8 @@ function M.create_hover_split(vertical, remain_focused)
 		win_opts.split = "below"
 	end
 
-	local conceallevel = vim.list_contains({ 0, 1, 2, 3 }, config.conceallevel) and config.conceallevel or 3
+	local conceallevel = config.conceallevel or 3
+	conceallevel = vim.list_contains({ 0, 1, 2, 3 }, conceallevel) and conceallevel or 3
 	M.hover_winid = vim.api.nvim_open_win(M.hover_bufnr, remain_focused, win_opts)
 	vim.api.nvim_win_set_buf(M.hover_winid, M.hover_bufnr)
 	vim.api.nvim_buf_set_name(M.hover_bufnr, "hoversplit")
