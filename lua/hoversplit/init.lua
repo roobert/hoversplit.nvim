@@ -77,18 +77,25 @@ function M.create_hover_split(vertical, remain_focused)
 
 	M.orig_bufnr = vim.api.nvim_get_current_buf()
 	M.orig_winid = vim.api.nvim_get_current_win()
+	M.orig_pos = vim.api.nvim_win_get_cursor(M.orig_winid)
 	M.hover_bufnr = vim.api.nvim_create_buf(false, true)
 
 	local augroup = vim.api.nvim_create_augroup("HoverSplit", { clear = true })
 	vim.api.nvim_create_autocmd("BufEnter", {
 		group = augroup,
-		buffer = M.hover_bufnr,
 		callback = function(ev)
-			vim.keymap.set('n', 'q', M.close_hover_split, {
-				noremap = true,
-				silent = true,
-				buffer = ev.buf,
-			})
+			if ev.buf == M.hover_bufnr then
+				vim.keymap.set('n', 'q', M.close_hover_split, {
+					noremap = true,
+					silent = true,
+					buffer = ev.buf,
+				})
+				return
+			end
+
+			if ev.buf == M.orig_bufnr then
+				vim.api.nvim_win_set_cursor(M.orig_winid, M.orig_pos)
+			end
 		end,
 	})
 
@@ -113,17 +120,15 @@ function M.create_hover_split(vertical, remain_focused)
 
 	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
 		group = augroup,
-		buffer = M.orig_bufnr,
 		callback = function(args)
-			if args.buf ~= M.hover_bufnr and M.check_hover_support(args.buf) then
+			if args.buf == M.hover_bufnr then
+				return
+			end
+			if M.check_hover_support(args.buf) then
 				M.update_hover_content()
 			end
 		end,
 	})
-
-	-- if M.check_hover_support(M.orig_bufnr) then
-	-- 	M.update_hover_content()
-	-- end
 end
 
 function M.split()
