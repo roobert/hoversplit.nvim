@@ -1,10 +1,15 @@
 local M = {}
 
 M.options = {
+	conceallevel = 3,
+	key_bindings_disabled = false,
 	key_bindings = {
-		split = "<leader>h",
-		vsplit = "<leader>H",
+		split = "<leader>hS",
+		vsplit = "<leader>hV",
+		split_remain_focused = "<leader>hs",
+		vsplit_remain_focused = "<leader>hv",
 	},
 }
 
 return M
+-- vim:ts=4:sts=4:noet:ai:si:sta:
