@@ -17,7 +17,8 @@ A Neovim plugin designed to enhance the Language Server Protocol (LSP) experienc
 ## Installation
 
 Install hoversplit.nvim using any preferred plugin manager.
-LazyVim Example:
+
+Example with `lazy.nvim`:
 
 ```lua
 {
@@ -28,11 +29,26 @@ LazyVim Example:
 }
 ```
 
+The defaults are:
+
+```lua
+require("hoversplit").setup({
+  conceallevel = 3,
+  key_bindings_disabled = false,
+  key_bindings = {
+    split = "<leader>hS",
+    vsplit = "<leader>hV",
+    split_remain_focused = "<leader>hs",
+    vsplit_remain_focused = "<leader>hv",
+  },
+})
+```
+
 ## Usage
 
 ### Key Bindings
 
-Configure key bindings for different functionalities. Example configuration:
+Configure key bindings for different functionalities. The default setup options are:
 
 ```lua
 {
@@ -40,10 +56,10 @@ Configure key bindings for different functionalities. Example configuration:
   config = function()
     require("hoversplit").setup({
       key_bindings = {
-        split_remain_focused = "<leader>hs",
-        vsplit_remain_focused = "<leader>hv",
         split = "<leader>hS",
         vsplit = "<leader>hV",
+        split_remain_focused = "<leader>hs",
+        vsplit_remain_focused = "<leader>hv",
       },
     })
   end,
