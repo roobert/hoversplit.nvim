@@ -10,6 +10,11 @@ M.orig_bufnr = nil ---@type integer|nil
 ---@param bufnr? integer
 ---@return boolean
 function M.check_hover_support(bufnr)
+	if vim.fn.has("nvim-0.11") then
+		vim.validate("bufnr", bufnr, "number", true)
+	else
+		vim.validate({ bufnr = { bufnr, { "number", "nil" } } })
+	end
 	bufnr = bufnr or vim.api.nvim_get_current_buf()
 	if bufnr == M.hover_bufnr then
 		return false
@@ -157,6 +162,11 @@ function M.close_hover_split()
 end
 
 function M.setup(options)
+	if vim.fn.has("nvim-0.11") then
+		vim.validate("options", options, "table", true, "HoverSplit.Opts")
+	else
+		vim.validate({ options = { options, { "table", "nil" } } })
+	end
 	options = options or {}
 	config.options = vim.tbl_deep_extend("force", config.options, options)
 
