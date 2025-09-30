@@ -17,11 +17,7 @@ function M.check_hover_support(bufnr)
 
 	-- Check if there are any available LSP clients that support hovering
 	local clients = vim.lsp.get_clients({ bufnr = bufnr, method = "textDocument/hover" })
-	if vim.tbl_isempty(clients) then
-		return false
-	end
-
-	return true
+	return not vim.tbl_isempty(clients)
 end
 
 function M.update_hover_content()
@@ -33,11 +29,12 @@ function M.update_hover_content()
 	local bufnr = vim.api.nvim_get_current_buf()
 	local win = vim.api.nvim_get_current_win()
 	local cursor_pos = vim.api.nvim_win_get_cursor(win)
+	local row, col = cursor_pos[1], cursor_pos[2]
 	local line_count = vim.api.nvim_buf_line_count(bufnr)
-	local current_line = vim.api.nvim_buf_get_lines(bufnr, cursor_pos[1] - 1, cursor_pos[1], false)[1] or ""
+	local current_line = vim.api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1] or ""
 
 	-- Validate the cursor position
-	if cursor_pos[1] < 1 or cursor_pos[1] > line_count or cursor_pos[2] < 0 or cursor_pos[2] > current_line:len() then
+	if row < 1 or row > line_count or col < 0 or col > current_line:len() then
 		vim.notify("Invalid cursor position detected. Skipping hover content update.", vim.log.levels.WARN)
 		return
 	end
@@ -78,7 +75,7 @@ function M.create_hover_split(vertical, remain_focused)
 		group = augroup,
 		callback = function(ev)
 			if ev.buf == M.hover_bufnr then
-				vim.keymap.set('n', 'q', M.close_hover_split, {
+				vim.keymap.set("n", "q", M.close_hover_split, {
 					noremap = true,
 					silent = true,
 					buffer = ev.buf,
@@ -122,14 +119,17 @@ function M.create_hover_split(vertical, remain_focused)
 	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
 		group = augroup,
 		callback = function(args)
-			if args.buf == M.hover_bufnr then
-				return
-			end
-			if M.check_hover_support(args.buf) then
-				M.update_hover_content()
+			if args.buf ~= M.hover_bufnr then
+				if M.check_hover_support(args.buf) then
+					M.update_hover_content()
+				end
 			end
 		end,
 	})
+
+	if vim.api.nvim_get_current_win() ~= M.hover_winid then
+		M.update_hover_content()
+	end
 end
 
 function M.split()
@@ -158,7 +158,7 @@ end
 
 function M.setup(options)
 	options = options or {}
-	config.options = vim.tbl_deep_extend('force', config.options, options)
+	config.options = vim.tbl_deep_extend("force", config.options, options)
 
 	if config.options.key_bindings_disabled then
 		return
@@ -168,28 +168,28 @@ function M.setup(options)
 		"n",
 		config.options.key_bindings.split_remain_focused,
 		M.split_remain_focused,
-		{ noremap = true, silent = true, desc = 'HoverSplit split (Remain Focused)' }
+		{ noremap = true, silent = true, desc = "HoverSplit split (Remain Focused)" }
 	)
 
 	vim.keymap.set(
 		"n",
 		config.options.key_bindings.vsplit_remain_focused,
 		M.vsplit_remain_focused,
-		{ noremap = true, silent = true, desc = 'HoverSplit vsplit (Remain Focused)' }
+		{ noremap = true, silent = true, desc = "HoverSplit vsplit (Remain Focused)" }
 	)
 
 	vim.keymap.set(
 		"n",
 		config.options.key_bindings.split,
 		M.split,
-		{ noremap = true, silent = true, desc = 'HoverSplit split' }
+		{ noremap = true, silent = true, desc = "HoverSplit split" }
 	)
 
 	vim.keymap.set(
 		"n",
 		config.options.key_bindings.vsplit,
 		M.vsplit,
-		{ noremap = true, silent = true, desc = 'HoverSplit vsplit' }
+		{ noremap = true, silent = true, desc = "HoverSplit vsplit" }
 	)
 end
 
