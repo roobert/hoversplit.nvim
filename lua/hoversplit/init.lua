@@ -1,3 +1,4 @@
+---@class HoverSplit
 local M = {}
 
 local config = require("hoversplit.config")
@@ -161,6 +162,7 @@ function M.close_hover_split()
 	end
 end
 
+---@param options? HoverSplit.Opts
 function M.setup(options)
 	if vim.fn.has("nvim-0.11") then
 		vim.validate("options", options, "table", true, "HoverSplit.Opts")
