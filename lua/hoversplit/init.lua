@@ -127,6 +127,15 @@ function M.create_hover_split(vertical, remain_focused)
 		end,
 	})
 
+	vim.api.nvim_create_autocmd({ "BufWipeout", "BufDelete" }, {
+		group = augroup,
+		callback = function(bufnr)
+			if bufnr == M.hover_bufnr then
+				M.close_hover_split()
+			end
+		end,
+	})
+
 	if vim.api.nvim_get_current_win() ~= M.hover_winid then
 		M.update_hover_content()
 	end
@@ -151,9 +160,10 @@ end
 function M.close_hover_split()
 	if M.hover_bufnr and vim.api.nvim_buf_is_valid(M.hover_bufnr) then
 		vim.api.nvim_buf_delete(M.hover_bufnr, { force = true })
-		M.hover_bufnr = nil
-		M.hover_winid = nil
 	end
+	M.hover_bufnr = nil
+	M.hover_winid = nil
+	vim.api.nvim_del_augroup_by_name("HoverSplit")
 end
 
 function M.setup(options)
