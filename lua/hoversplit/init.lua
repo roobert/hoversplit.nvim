@@ -165,7 +165,7 @@ function M.close_hover_split()
 	end
 	M.hover_bufnr = nil
 	M.hover_winid = nil
-	vim.api.nvim_del_augroup_by_name("HoverSplit")
+	vim.api.nvim_create_augroup("HoverSplit", { clear = true })
 end
 
 function M.setup(options)
