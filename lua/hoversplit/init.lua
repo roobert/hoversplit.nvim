@@ -131,7 +131,9 @@ function M.create_hover_split(vertical, remain_focused)
 		group = augroup,
 		callback = function(args)
 			if args.buf == M.hover_bufnr then
-				M.close_hover_split()
+				vim.schedule(M.close_hover_split)
+
+				return true
 			end
 		end,
 	})
