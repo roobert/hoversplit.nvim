@@ -131,6 +131,10 @@ function M.create_hover_split(vertical, remain_focused)
 	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
 		group = augroup,
 		callback = function(args)
+			-- Unregister autocmd if hover buffer does not exists
+    		if not (M.hover_bufnr and M.hover_winid) then -- Condition expands to `not M.hover_bufnr or not M.hover_winid`
+				return true
+			end
 			if args.buf ~= M.hover_bufnr then
 				if M.check_hover_support(args.buf) then
 					M.update_hover_content()
@@ -181,7 +185,6 @@ function M.close_hover_split()
 	end
 	M.hover_bufnr = nil
 	M.hover_winid = nil
-	vim.api.nvim_create_augroup("HoverSplit", { clear = true })
 end
 
 function M.setup(options)
