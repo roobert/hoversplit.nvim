@@ -48,6 +48,10 @@ function M.update_hover_content()
 				return
 			end
 
+			if not M.hover_bufnr or not vim.api.nvim_buf_is_valid(M.hover_bufnr) then
+				return
+			end
+
 			local lines = vim.lsp.util.convert_input_to_markdown_lines(result.contents)
 			vim.bo[M.hover_bufnr].modifiable = true
 			vim.api.nvim_buf_set_lines(M.hover_bufnr, 0, -1, false, lines)
