@@ -7,6 +7,8 @@ M.hover_winid = nil ---@type integer|nil
 M.orig_winid = nil ---@type integer|nil
 M.orig_bufnr = nil ---@type integer|nil
 
+M.lsp_request_cancel_fn = nil ---@type function|nil
+
 ---@param bufnr? integer
 ---@return boolean
 function M.check_hover_support(bufnr)
@@ -25,6 +27,11 @@ function M.update_hover_content()
 		return
 	end
 
+	if M.lsp_request_cancel_fn then
+		M.lsp_request_cancel_fn()
+		M.lsp_request_cancel_fn = nil
+	end
+
 	-- Check the current buffer and cursor position
 	local bufnr = vim.api.nvim_get_current_buf()
 	local win = vim.api.nvim_get_current_win()
@@ -39,11 +46,12 @@ function M.update_hover_content()
 		return
 	end
 
-	vim.lsp.buf_request(
+	_, M.lsp_request_cancel_fn = vim.lsp.buf_request(
 		bufnr,
 		"textDocument/hover",
 		vim.lsp.util.make_position_params(win, "utf-16"),
 		function(err, result)
+			M.lsp_request_cancel_fn = nil
 			if err or not (result and result.contents) then
 				return
 			end
@@ -166,6 +174,10 @@ end
 function M.close_hover_split()
 	if M.hover_bufnr and vim.api.nvim_buf_is_valid(M.hover_bufnr) then
 		vim.api.nvim_buf_delete(M.hover_bufnr, { force = true })
+	end
+	if M.lsp_request_cancel_fn then
+		M.lsp_request_cancel_fn()
+		M.lsp_request_cancel_fn = nil
 	end
 	M.hover_bufnr = nil
 	M.hover_winid = nil
