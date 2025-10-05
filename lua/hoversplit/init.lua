@@ -118,9 +118,9 @@ function M.create_hover_split(vertical, remain_focused)
 
 	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "LspProgress" }, {
 		group = augroup,
-		callback = function()
-			if vim.api.nvim_get_current_win() ~= M.hover_winid then
-				if M.check_hover_support(vim.api.nvim_get_current_buf()) then
+		callback = function(args)
+			if args.buf ~= M.hover_bufnr then
+				if M.check_hover_support(args.buf) then
 					M.update_hover_content()
 				end
 			end
