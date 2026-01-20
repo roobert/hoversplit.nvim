@@ -7,6 +7,8 @@ M.hover_winid = nil ---@type integer|nil
 M.orig_winid = nil ---@type integer|nil
 M.orig_bufnr = nil ---@type integer|nil
 
+M.lsp_request_cancel_fn = nil ---@type function|nil
+
 ---@param bufnr? integer
 ---@return boolean
 function M.check_hover_support(bufnr)
@@ -25,6 +27,11 @@ function M.update_hover_content()
 		return
 	end
 
+	if M.lsp_request_cancel_fn then
+		M.lsp_request_cancel_fn()
+		M.lsp_request_cancel_fn = nil
+	end
+
 	-- Check the current buffer and cursor position
 	local bufnr = vim.api.nvim_get_current_buf()
 	local win = vim.api.nvim_get_current_win()
@@ -39,12 +46,17 @@ function M.update_hover_content()
 		return
 	end
 
-	vim.lsp.buf_request(
+	_, M.lsp_request_cancel_fn = vim.lsp.buf_request(
 		bufnr,
 		"textDocument/hover",
 		vim.lsp.util.make_position_params(win, "utf-16"),
 		function(err, result)
+			M.lsp_request_cancel_fn = nil
 			if err or not (result and result.contents) then
+				return
+			end
+
+			if not M.hover_bufnr or not vim.api.nvim_buf_is_valid(M.hover_bufnr) then
 				return
 			end
 
@@ -119,10 +131,25 @@ function M.create_hover_split(vertical, remain_focused)
 	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
 		group = augroup,
 		callback = function(args)
+			-- Unregister autocmd if hover buffer does not exists
+    		if not (M.hover_bufnr and M.hover_winid) then -- Condition expands to `not M.hover_bufnr or not M.hover_winid`
+				return true
+			end
 			if args.buf ~= M.hover_bufnr then
 				if M.check_hover_support(args.buf) then
 					M.update_hover_content()
 				end
+			end
+		end,
+	})
+
+	vim.api.nvim_create_autocmd({ "BufWipeout", "BufDelete" }, {
+		group = augroup,
+		callback = function(args)
+			if args.buf == M.hover_bufnr then
+				vim.schedule(M.close_hover_split)
+
+				return true
 			end
 		end,
 	})
@@ -151,9 +178,13 @@ end
 function M.close_hover_split()
 	if M.hover_bufnr and vim.api.nvim_buf_is_valid(M.hover_bufnr) then
 		vim.api.nvim_buf_delete(M.hover_bufnr, { force = true })
-		M.hover_bufnr = nil
-		M.hover_winid = nil
 	end
+	if M.lsp_request_cancel_fn then
+		M.lsp_request_cancel_fn()
+		M.lsp_request_cancel_fn = nil
+	end
+	M.hover_bufnr = nil
+	M.hover_winid = nil
 end
 
 function M.setup(options)
