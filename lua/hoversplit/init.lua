@@ -128,7 +128,7 @@ function M.create_hover_split(vertical, remain_focused)
 	vim.wo[M.hover_winid].wrap = true
 	vim.wo[M.hover_winid].conceallevel = conceallevel
 
-	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "LspProgress" }, {
 		group = augroup,
 		callback = function(args)
 			-- Unregister autocmd if hover buffer does not exists
